@@ -85,4 +85,23 @@ typedef struct
 	volatile uint32_t DCKCFGR2;		// 0x90
 } RCC_RegisterDefinition_t;
 
+
+/* Peripheral specifics */
+#define GPIOB		( (GPIO_RegisterDefinition_t*)GPIOB_BASE_ADDRESS )
+#define GPIOC		( (GPIO_RegisterDefinition_t*)GPIOC_BASE_ADDRESS )
+
+#define RCC			( (RCC_RegisterDefinition_t*)RCC_BASE_ADDRESS )
+
+/* CLK Enable macros*/
+#define GPIOB_PCLK_ENABLE()		(RCC->AHB1ENR |= (1 << 1))
+#define GPIOC_PCLK_ENABLE()		(RCC->AHB1ENR |= (1 << 2))
+
+/* CLK Disable macros */
+#define GPIOB_PCLK_DISABLE()	(RCC->AHB1ENR &= ~(1 << 1))
+#define GPIOC_PCLK_DISABLE()	(RCC->AHB1ENR &= ~(1 << 2))
+
+/* Reset GPIOx Peripherals */
+#define GPIOB_REG_RESET()		do{ (RCC->AHB1RSTR |= (1 << 1)); (RCC->AHB1RSTR &= ~(1 << 1)); } while(0)
+#define GPIOC_REG_RESET()		do{ (RCC->AHB1RSTR |= (1 << 2)); (RCC->AHB1RSTR &= ~(1 << 2)); } while(0)
+
 #endif /* STM32F76XXX_H_ */
