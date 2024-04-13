@@ -85,7 +85,6 @@ typedef struct
 	volatile uint32_t DCKCFGR2;		// 0x90
 } RCC_RegisterDefinition_t;
 
-
 /* Peripheral specifics */
 #define GPIOB		( (GPIO_RegisterDefinition_t*)GPIOB_BASE_ADDRESS )
 #define GPIOC		( (GPIO_RegisterDefinition_t*)GPIOC_BASE_ADDRESS )
