@@ -88,6 +88,13 @@ typedef struct
 #define GPIO_PIN_SET		1
 #define GPIO_PIN_CLEAR		0
 
+/* External interrupt macros */
+#define GET_EXTI_PORT( x )		( (x == GPIOB) ? 1 : \
+								  (x == GPIOC) ? 2 : 0 )
+
+#define EXIT_PORTB		1
+#define EXIT_PORTC		2
+
 /* GPIO FUNCTIONS */
 void GPIO_Initialize(GPIO_Handle_t* pGPIOHandle);
 void GPIO_DeInitialize(GPIO_RegisterDefinition_t* pGPIOx);

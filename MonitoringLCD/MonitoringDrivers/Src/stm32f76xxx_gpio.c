@@ -18,6 +18,14 @@ void GPIO_Initialize(GPIO_Handle_t* pGPIOHandle)
 	else
 	{
 		// Interrupt mode
+		uint8_t exticr_position, exticr_pin_position, port = 0;
+		exticr_position = pGPIOHandle->PinConfig.PinNumber / 4;
+		exticr_pin_position = pGPIOHandle->PinConfig.PinNumber % 4;
+		port = GET_EXTI_PORT(pGPIOHandle->pGPIOx);
+
+		SYSCFG_PCLK_ENABLE();
+
+		SYSCFG->EXTICR[exticr_position] |= (port << (exticr_pin_position * 4));
 	}
 
 	// Output type

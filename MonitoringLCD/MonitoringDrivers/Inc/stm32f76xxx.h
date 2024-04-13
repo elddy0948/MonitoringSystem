@@ -34,6 +34,9 @@
 #define GPIOB_BASE_ADDRESS		(AHB1_BASE_ADDRESS + 0x0400U)
 #define GPIOC_BASE_ADDRESS		(AHB1_BASE_ADDRESS + 0x0800U)
 
+#define SYSCFG_BASE_ADDRESS		(APB2_BASE_ADDRESS + 0x3800U)
+#define EXTI_BASE_ADDRESS		(APB2_BASE_ADDRESS + 0x3C00U)
+
 /* Register definition structures */
 typedef struct
 {
@@ -85,22 +88,48 @@ typedef struct
 	volatile uint32_t DCKCFGR2;		// 0x90
 } RCC_RegisterDefinition_t;
 
+typedef struct
+{
+	volatile uint32_t MEMRMP;		// 0x00
+	volatile uint32_t PMC;			// 0x04
+	volatile uint32_t EXTICR[4];	// 0x08 ~ 0x14
+	volatile uint32_t CBR;			// 0x1C
+	volatile uint32_t CMPCR;		// 0x20
+} SYSCFG_RegisterDefinition_t;
+
+typedef struct
+{
+	volatile uint32_t IMR;			// 0x00
+	volatile uint32_t EMR;			// 0x04
+	volatile uint32_t RTSR;			// 0x08
+	volatile uint32_t FTSR;			// 0x0C
+	volatile uint32_t SWIER;		// 0x10
+	volatile uint32_t PR;			// 0x14
+} EXTI_RegisterDefinition_t;
+
 /* Peripheral specifics */
 #define GPIOB		( (GPIO_RegisterDefinition_t*)GPIOB_BASE_ADDRESS )
 #define GPIOC		( (GPIO_RegisterDefinition_t*)GPIOC_BASE_ADDRESS )
 
 #define RCC			( (RCC_RegisterDefinition_t*)RCC_BASE_ADDRESS )
+#define SYSCFG		( (SYSCFG_RegisterDefinition_t*)SYSCFG_BASE_ADDRESS )
 
 /* CLK Enable macros*/
 #define GPIOB_PCLK_ENABLE()		(RCC->AHB1ENR |= (1 << 1))
 #define GPIOC_PCLK_ENABLE()		(RCC->AHB1ENR |= (1 << 2))
 
+#define SYSCFG_PCLK_ENABLE()	(RCC->APB2ENR |= (1 << 14))
+
 /* CLK Disable macros */
 #define GPIOB_PCLK_DISABLE()	(RCC->AHB1ENR &= ~(1 << 1))
 #define GPIOC_PCLK_DISABLE()	(RCC->AHB1ENR &= ~(1 << 2))
 
-/* Reset GPIOx Peripherals */
+#define SYSCFG_PCLK_DISABLE()	(RCC->APB2ENR &= ~(1 << 14))
+
+/* Reset Peripherals macros */
 #define GPIOB_REG_RESET()		do{ (RCC->AHB1RSTR |= (1 << 1)); (RCC->AHB1RSTR &= ~(1 << 1)); } while(0)
 #define GPIOC_REG_RESET()		do{ (RCC->AHB1RSTR |= (1 << 2)); (RCC->AHB1RSTR &= ~(1 << 2)); } while(0)
+
+#define SYSCFG_REG_RESET()		do{ (RCC->APB2RSTR |= (1 << 14); (RCC->APB2RSTR &= ~(1 << 14)); } while(0)
 
 #endif /* STM32F76XXX_H_ */
