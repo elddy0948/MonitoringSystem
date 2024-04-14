@@ -156,4 +156,6 @@ typedef struct
 #define ENABLE						1
 #define DISABLE						0
 
+#include "stm32f76xxx_gpio.h"
+
 #endif /* STM32F76XXX_H_ */
