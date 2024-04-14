@@ -50,6 +50,9 @@ typedef struct
 #define GPIO_MODE_OUTPUT			1
 #define GPIO_MODE_ALTERNATEFUNCTION	2
 #define GPIO_MODE_ANALOG			3
+#define GPIO_MODE_IT_FALLING		4
+#define GPIO_MODE_IT_RISING			5
+#define GPIO_MODE_IT_FALLING_RISING	6
 
 /* OUTPUT TYPE */
 #define GPIO_OUTPUT_TYPE_PP			0
@@ -91,7 +94,6 @@ typedef struct
 /* External interrupt macros */
 #define GET_EXTI_PORT( x )		( (x == GPIOB) ? 1 : \
 								  (x == GPIOC) ? 2 : 0 )
-
 #define EXIT_PORTB		1
 #define EXIT_PORTC		2
 
@@ -101,5 +103,9 @@ void GPIO_DeInitialize(GPIO_RegisterDefinition_t* pGPIOx);
 
 void GPIO_write_to_pin(GPIO_RegisterDefinition_t* pGPIOx, uint8_t pin, uint8_t value);
 void GPIO_write_to_port(GPIO_RegisterDefinition_t* pGPIOx, uint16_t value);
+
+void GPIO_IRQ_interrupt_config(uint8_t IRQNumber, uint8_t status);
+void GPIO_IRQ_priority_config(uint8_t IRQNumber, uint8_t IRQPriority);
+void GPIO_IRQ_handling(uint8_t pin);
 
 #endif /* STM32F76XXX_GPIO_H_ */

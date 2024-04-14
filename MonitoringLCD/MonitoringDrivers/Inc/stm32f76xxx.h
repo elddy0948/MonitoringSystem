@@ -113,6 +113,7 @@ typedef struct
 
 #define RCC			( (RCC_RegisterDefinition_t*)RCC_BASE_ADDRESS )
 #define SYSCFG		( (SYSCFG_RegisterDefinition_t*)SYSCFG_BASE_ADDRESS )
+#define EXTI		( (EXTI_RegisterDefinition_t*)EXTI_BASE_ADDRESS )
 
 /* CLK Enable macros*/
 #define GPIOB_PCLK_ENABLE()		(RCC->AHB1ENR |= (1 << 1))
@@ -131,5 +132,28 @@ typedef struct
 #define GPIOC_REG_RESET()		do{ (RCC->AHB1RSTR |= (1 << 2)); (RCC->AHB1RSTR &= ~(1 << 2)); } while(0)
 
 #define SYSCFG_REG_RESET()		do{ (RCC->APB2RSTR |= (1 << 14); (RCC->APB2RSTR &= ~(1 << 14)); } while(0)
+
+/* NVIC */
+typedef struct
+{
+	volatile uint32_t ISER[7];
+} NVIC_ISER_t;
+
+#define NVIC_ISER_BASE_ADDRESS		(0xE000E100U)
+#define NVIC_ISER					((NVIC_ISER_t*)NVIC_ISER_BASE_ADDRESS)
+
+typedef struct
+{
+	volatile uint32_t ICER[7];
+} NVIC_ICER_t;
+
+#define NVIC_ICER_BASE_ADDRESS		(0xE000E180U)
+#define NVIC_ICER					((NVIC_ICER_t*)NVIC_ICER_BASE_ADDRESS)
+
+#define NVIC_IPR_BASE_ADDRESS		((volatile uint32_t*)0xE000E400U)
+#define NO_IPR_BITS_IMPLEMENTED		4
+
+#define ENABLE						1
+#define DISABLE						0
 
 #endif /* STM32F76XXX_H_ */

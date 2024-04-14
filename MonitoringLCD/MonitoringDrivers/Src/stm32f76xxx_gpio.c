@@ -23,9 +23,29 @@ void GPIO_Initialize(GPIO_Handle_t* pGPIOHandle)
 		exticr_pin_position = pGPIOHandle->PinConfig.PinNumber % 4;
 		port = GET_EXTI_PORT(pGPIOHandle->pGPIOx);
 
+		SYSCFG->EXTICR[exticr_position] |= (port << (exticr_pin_position * 4));
+
+		switch(pGPIOHandle->PinConfig.PinMode)
+		{
+		case GPIO_MODE_IT_FALLING:
+			EXTI->FTSR |= (1 << pGPIOHandle->PinConfig.PinNumber);
+			EXTI->RTSR &= ~(1 << pGPIOHandle->PinConfig.PinNumber);
+			break;
+		case GPIO_MODE_IT_RISING:
+			EXTI->RTSR |= (1 << pGPIOHandle->PinConfig.PinNumber);
+			EXTI->FTSR &= ~(1 << pGPIOHandle->PinConfig.PinNumber);
+			break;
+		case GPIO_MODE_IT_FALLING_RISING:
+			EXTI->FTSR |= (1 << pGPIOHandle->PinConfig.PinNumber);
+			EXTI->RTSR |= (1 << pGPIOHandle->PinConfig.PinNumber);
+			break;
+		default:
+			break;
+		}
+
 		SYSCFG_PCLK_ENABLE();
 
-		SYSCFG->EXTICR[exticr_position] |= (port << (exticr_pin_position * 4));
+		EXTI->IMR |= (1 << pGPIOHandle->PinConfig.PinNumber);
 	}
 
 	// Output type
@@ -83,3 +103,31 @@ void GPIO_write_to_port(GPIO_RegisterDefinition_t* pGPIOx, uint16_t value)
 	pGPIOx->ODR = value;
 }
 
+void GPIO_IRQ_interrupt_config(uint8_t IRQNumber, uint8_t status)
+{
+	 if(status == ENABLE)
+	 {
+		 NVIC_ISER->ISER[IRQNumber / 32] |= (1 << (IRQNumber % (32 * (IRQNumber / 32))));
+	 }
+	 else
+	 {
+		 NVIC_ICER->ICER[IRQNumber / 32] |= (1 << (IRQNumber % (32 * (IRQNumber / 32))));
+	 }
+}
+
+void GPIO_IRQ_priority_config(uint8_t IRQNumber, uint8_t IRQPriority)
+{
+	uint8_t iprx = IRQNumber / 4;
+	uint8_t iprx_section = IRQNumber % 4;
+	uint8_t shift_amount = (8 * iprx_section) + (8 - NO_IPR_BITS_IMPLEMENTED);
+
+	*(NVIC_IPR_BASE_ADDRESS + iprx) |= (IRQPriority << shift_amount);
+}
+
+void GPIO_IRQ_handling(uint8_t pin)
+{
+	if(EXTI->PR & (1 << pin))
+	{
+		EXTI->PR |= (1 << pin);
+	}
+}
