@@ -103,6 +103,13 @@ void GPIO_write_to_port(GPIO_RegisterDefinition_t* pGPIOx, uint16_t value)
 	pGPIOx->ODR = value;
 }
 
+void GPIO_toggle_pin(GPIO_RegisterDefinition_t* pGPIOx, uint8_t pin)
+{
+	uint32_t odr;
+	odr = pGPIOx->ODR;
+	pGPIOx->BSRR = ((odr & pin) << GPIO_NUMBER) | (~odr & pin);
+}
+
 void GPIO_IRQ_interrupt_config(uint8_t IRQNumber, uint8_t status)
 {
 	 if(status == ENABLE)

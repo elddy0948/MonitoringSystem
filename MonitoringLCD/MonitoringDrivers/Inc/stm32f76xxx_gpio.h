@@ -97,12 +97,15 @@ typedef struct
 #define EXIT_PORTB		1
 #define EXIT_PORTC		2
 
+#define GPIO_NUMBER				( (uint32_t)16U )
+
 /* GPIO FUNCTIONS */
 void GPIO_Initialize(GPIO_Handle_t* pGPIOHandle);
 void GPIO_DeInitialize(GPIO_RegisterDefinition_t* pGPIOx);
 
 void GPIO_write_to_pin(GPIO_RegisterDefinition_t* pGPIOx, uint8_t pin, uint8_t value);
 void GPIO_write_to_port(GPIO_RegisterDefinition_t* pGPIOx, uint16_t value);
+void GPIO_toggle_pin(GPIO_RegisterDefinition_t* pGPIOx, uint8_t pin);
 
 void GPIO_IRQ_interrupt_config(uint8_t IRQNumber, uint8_t status);
 void GPIO_IRQ_priority_config(uint8_t IRQNumber, uint8_t IRQPriority);

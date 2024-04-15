@@ -10,6 +10,14 @@
 
 #include <stdint.h>
 
+#if !defined(HSE_VALUE)
+#define HSE_VALUE		((uint32_t)8000000U)
+#endif
+
+#if !defined(HSI_VALUE)
+#define HSI_VALUE		((uint32_t)16000000U)
+#endif
+
 /* Block 0 & Block 1  */
 #define FLASH_AXIM_BASE_ADDRESS		0x08000000U
 #define FLASH_ICTM_BASE_ADDRESS		0x00200000U
@@ -28,14 +36,15 @@
 #define INTERNAL_PERIPHERAL_BASE_ADDRESS	0xE0000000
 
 /* Peripherals register boundary addresses */
-#define RCC_BASE_ADDRESS		(AHB1_BASE_ADDRESS + 0x3800U)
-#define CRC_BASE_ADDRESS		(AHB1_BASE_ADDRESS + 0x3000U)
+#define RCC_BASE_ADDRESS		(AHB1_BASE_ADDRESS + 0x3800UL)
+#define CRC_BASE_ADDRESS		(AHB1_BASE_ADDRESS + 0x3000UL)
+#define FLASH_BASE_ADDRESS		(AHB1_BASE_ADDRESS + 0x3C00UL)
 
-#define GPIOB_BASE_ADDRESS		(AHB1_BASE_ADDRESS + 0x0400U)
-#define GPIOC_BASE_ADDRESS		(AHB1_BASE_ADDRESS + 0x0800U)
+#define GPIOB_BASE_ADDRESS		(AHB1_BASE_ADDRESS + 0x0400UL)
+#define GPIOC_BASE_ADDRESS		(AHB1_BASE_ADDRESS + 0x0800UL)
 
-#define SYSCFG_BASE_ADDRESS		(APB2_BASE_ADDRESS + 0x3800U)
-#define EXTI_BASE_ADDRESS		(APB2_BASE_ADDRESS + 0x3C00U)
+#define SYSCFG_BASE_ADDRESS		(APB2_BASE_ADDRESS + 0x3800UL)
+#define EXTI_BASE_ADDRESS		(APB2_BASE_ADDRESS + 0x3C00UL)
 
 /* Register definition structures */
 typedef struct
@@ -107,11 +116,23 @@ typedef struct
 	volatile uint32_t PR;			// 0x14
 } EXTI_RegisterDefinition_t;
 
+typedef struct
+{
+	volatile uint32_t ACR;
+	volatile uint32_t KEYR;
+	volatile uint32_t OPTKEYR;
+	volatile uint32_t SR;
+	volatile uint32_t CR;
+	volatile uint32_t OPTCR;
+	volatile uint32_t OPTCR1;
+} FLASH_RegisterDefinition_t;
+
 /* Peripheral specifics */
 #define GPIOB		( (GPIO_RegisterDefinition_t*)GPIOB_BASE_ADDRESS )
 #define GPIOC		( (GPIO_RegisterDefinition_t*)GPIOC_BASE_ADDRESS )
 
 #define RCC			( (RCC_RegisterDefinition_t*)RCC_BASE_ADDRESS )
+#define FLASH		( (FLASH_RegisterDefinition_t*)FLASH_BASE_ADDRESS )
 #define SYSCFG		( (SYSCFG_RegisterDefinition_t*)SYSCFG_BASE_ADDRESS )
 #define EXTI		( (EXTI_RegisterDefinition_t*)EXTI_BASE_ADDRESS )
 
@@ -153,9 +174,131 @@ typedef struct
 #define NVIC_IPR_BASE_ADDRESS		((volatile uint32_t*)0xE000E400U)
 #define NO_IPR_BITS_IMPLEMENTED		4
 
+#define NVIC_PRIO_BITS				4U
+
 #define ENABLE						1
 #define DISABLE						0
 
+/* FLASH */
+#define FLASH_ACR_LATENCY_Pos		(0U)
+#define FLASH_ACR_LATENCY_Msk		(0xFUL << FLASH_ACR_LATENCY_Pos)
+#define FLASH_ACR_LATENCY			FLASH_ACR_LATENCY_Msk
+
+/* RCC */
+#define RCC_CFGR_SW_Pos				(0U)
+#define RCC_CFGR_SW_Msk				(0x3UL << RCC_CFGR_SW_Pos)
+#define RCC_CFGR_SW					RCC_CFGR_SW_Msk
+
+#define RCC_CFGR_SW_HSI				0x00000000U
+#define RCC_CFGR_SW_HSE				0x00000001U
+#define RCC_CFGR_SW_PLL				0x00000002U
+
+#define RCC_CFGR_SWS_Pos			(2U)
+#define RCC_CFGR_SWS_Msk			(0x3UL << RCC_CFGR_SWS_Pos)
+#define RCC_CFGR_SWS				RCC_CFGR_SWS_Msk
+#define RCC_CFGR_SWS_0				(0x1UL << RCC_CFGR_SWS_Pos)
+#define RCC_CFGR_SWS_1				(0x2UL << RCC_CFGR_SWS_Pos)
+#define RCC_CFGR_SWS_HSI			0x0U
+#define RCC_CFGR_SWS_HSE			0x4U
+#define RCC_CFGR_SWS_PLL			0x8U
+
+#define RCC_CFGR_HPRE_Pos			(4U)
+#define RCC_CFGR_HPRE_Msk			(0xFUL << RCC_CFGR_HPRE_Pos)
+#define RCC_CFGR_HPRE				RCC_CFGR_HPRE_Msk
+#define RCC_CFGR_HPRE_0				(0x1UL << RCC_CFGR_HPRE_Pos)
+#define RCC_CFGR_HPRE_1				(0x2UL << RCC_CFGR_HPRE_Pos)
+#define RCC_CFGR_HPRE_2				(0x4UL << RCC_CFGR_HPRE_Pos)
+#define RCC_CFGR_HPRE_3				(0x8UL << RCC_CFGR_HPRE_Pos)
+
+#define RCC_CFGR_HPRE_DIV1			0x00000000U
+#define RCC_CFGR_HPRE_DIV2			0x00000080U
+#define RCC_CFGR_HPRE_DIV4			0x00000090U
+#define RCC_CFGR_HPRE_DIV8			0x000000A0U
+#define RCC_CFGR_HPRE_DIV16			0x000000B0U
+#define RCC_CFGR_HPRE_DIV64			0x000000C0U
+#define RCC_CFGR_HPRE_DIV128		0x000000D0U
+#define RCC_CFGR_HPRE_DIV256		0x000000E0U
+#define RCC_CFGR_HPRE_DIV512		0x000000F0U
+
+#define RCC_CFGR_PPRE1_Pos			(10U)
+#define RCC_CFGR_PPRE1_Msk			(0x7UL << RCC_CFGR_PPRE1_Pos)
+#define RCC_CFGR_PPRE1				RCC_CFGR_PPRE1_Msk
+#define RCC_CFGR_PPRE1_0			(0x1UL << RCC_CFGR_PPRE1_Pos)
+#define RCC_CFGR_PPRE1_1			(0x2UL << RCC_CFGR_PPRE1_Pos)
+#define RCC_CFGR_PPRE1_2			(0x4UL << RCC_CFGR_PPRE1_Pos)
+
+#define RCC_CFGR_PPRE1_DIV1			0x00000000U
+#define RCC_CFGR_PPRE1_DIV2			0x00001000U
+#define RCC_CFGR_PPRE1_DIV4			0x00001400U
+#define RCC_CFGR_PPRE1_DIV8			0x00001800U
+#define RCC_CFGR_PPRE1_DIV16		0x00001C00U
+
+#define RCC_CFGR_PPRE2_Pos			(13U)
+#define RCC_CFGR_PPRE2_Msk			(0x7UL << RCC_CFGR_PPRE2_Pos)
+#define RCC_CFGR_PPRE2				RCC_CFGR_PPRE2_Msk
+#define RCC_CFGR_PPRE2_0			(0x1UL << RCC_CFGR_PPRE2_Pos)
+#define RCC_CFGR_PPRE2_1			(0x2UL << RCC_CFGR_PPRE2_Pos)
+#define RCC_CFGR_PPRE2_2			(0x4UL << RCC_CFGR_PPRE2_Pos)
+
+#define RCC_CR_HSEON_POS			(16U)
+#define RCC_CR_HSEON_MSK			(0x01UL << RCC_CR_HSEON_POS)
+#define RCC_CR_HSEON				RCC_CR_HSEON_MSK
+
+#define RCC_CR_HSEBYP_POS			(18U)
+#define RCC_CR_HSEBYP_MSK			(0x01UL << RCC_CR_HSEBYP_POS)
+#define RCC_CR_HSEBYP				RCC_CR_HSEBYP_MSK
+
+#define RCC_PLLCFGR_PLLM_Pos		(0U)
+#define RCC_PLLCFGR_PLLM_Msk		(0x3FUL << RCC_PLLCFGR_PLLM_Pos)
+#define RCC_PLLCFGR_PLLM			RCC_PLLCFGR_PLLM_Msk
+
+#define RCC_PLLCFGR_PLLN_Pos		(6U)
+#define RCC_PLLCFGR_PLLN_Msk		(0x1FFUL << RCC_PLLCFGR_PLLN_Pos)
+#define RCC_PLLCFGR_PLLN			RCC_PLLCFGR_PLLN_Msk
+
+#define RCC_PLLCFGR_PLLP_Pos		(16U)
+#define RCC_PLLCFGR_PLLP_Msk		(0x3UL << RCC_PLLCFGR_PLLP_Pos)
+#define RCC_PLLCFGR_PLLP			RCC_PLLCFGR_PLLP_Msk
+
+#define RCC_PLLCFGR_PLLSRC_Pos		(22U)
+#define RCC_PLLCFGR_PLLSRC_Msk		(0x1UL << RCC_PLLCFGR_PLLSRC_Pos)
+#define RCC_PLLCFGR_PLLSRC			RCC_PLLCFGR_PLLSRC_Msk
+
+#define RCC_PLLCFGR_PLLSRC_HSE_POS	(22U)
+#define RCC_PLLCFGR_PLLSRC_HSE_MSK	(0x1UL << RCC_PLLCFGR_PLLSRC_HSE_POS)
+#define RCC_PLLCFGR_PLLSRC_HSE		RCC_PLLCFGR_PLLSRC_HSE_MSK
+#define RCC_PLLCFGR_PLLSRC_HSI		0x00000000U
+
+#define RCC_PLLCFGR_PLLQ_Pos		(24U)
+#define RCC_PLLCFGR_PLLQ_Msk		(0xFUL << RCC_PLLCFGR_PLLQ_Pos)
+#define RCC_PLLCFGR_PLLQ			RCC_PLLCFGR_PLLQ_Msk
+
+#define RCC_PLLCFGR_PLLR_Pos		(28U)
+#define RCC_PLLCFGR_PLLR_Msk		(0x7UL << RCC_PLLCFGR_PLLR_Pos)
+#define RCC_PLLCFGR_PLLR			RCC_PLLCFGR_PLLR_Msk
+
+#define RCC_CR_PLLON_Pos			(24U)
+#define RCC_CR_PLLON_Msk			(0x1UL << RCC_CR_PLLON_Pos)
+#define RCC_CR_PLLON				RCC_CR_PLLON_Msk
+
+#define SET_BIT(REG, BIT)					((REG) |= (BIT))
+#define CLEAR_BIT(REG, BIT)					((REG) &= ~(BIT))
+#define READ_BIT(REG, BIT)					((REG) & (BIT))
+#define CLEAR_REG(REG)						((REG) = (0x0))
+#define WRITE_REG(REG, VAL)					((REG) = (VAL))
+#define READ_REG(REG)						((REG))
+#define MODIFY_REG(REG, CLEARMASK, SETMASK)	WRITE_REG((REG), (((READ_REG(REG)) & (~(CLEARMASK))) | (SETMASK)))
+
+#define RCC_PLL_CONFIG(__RCC_PLLSource__, __PLLM__, __PLLN__, __PLLP__, __PLLQ__, __PLLR__)  \
+		(RCC->PLLCFGR = ((__RCC_PLLSource__) | (__PLLM__)                 | \
+				((__PLLN__) << RCC_PLLCFGR_PLLN_Pos)                      | \
+				((((__PLLP__) >> 1) -1) << RCC_PLLCFGR_PLLP_Pos)          | \
+				((__PLLQ__) << RCC_PLLCFGR_PLLQ_Pos)                      | \
+				((__PLLR__) << RCC_PLLCFGR_PLLR_Pos)))
+
+#include "monitoring_hal.h"
 #include "stm32f76xxx_gpio.h"
+#include "stm32f76xxx_rcc.h"
+#include "stm32f76xxx_flash.h"
 
 #endif /* STM32F76XXX_H_ */
